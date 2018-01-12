@@ -1,0 +1,1 @@
+powershell.exe -NoProfile -NoLogo -NonInteractive -ExecutionPolicy Bypass -File "C:\Program files\botMeNow\driver.ps1"
