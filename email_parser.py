@@ -4,6 +4,8 @@ import psycopg2
 import pause, datetime
 import imaplib
 
+# Super Cool Comment
+
 #set credentials for receiving email
 emailaddr = 'your user'
 passwd = 'yourpass'
